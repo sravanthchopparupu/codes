@@ -1,0 +1,790 @@
+//class skedModels
+global class skedModels {
+
+public virtual class job extends skedBaseModels.job {
+    public List<job> followups {get;set;}
+    public List<jobAllocation> allocations {get;set;}
+
+    public integer noOfQualifiedResources {get;set;}
+    public integer noOfAvailableResources {get;set;}
+
+    public job() {}
+
+    public job(sked__Job__c skedJob) {
+        super(skedJob);
+        this.allocations = new List<jobAllocation>();
+        this.followups = new List<job>();
+    }
+}
+
+public virtual class availability extends skedBaseModels.availability {
+    public availability(sked__Availability__c skedAvailability) {
+        super(skedAvailability);
+    }
+}
+
+public virtual class resourceShift extends skedBaseModels.resourceShift {
+    public resourceShift(sked__Resource_Shift__c skedResourceShift) {
+        super(skedResourceShift);
+    }
+}
+
+public virtual class activity extends skedBaseModels.activity {
+    public activity(sked__Activity__c skedActivity) {
+        super(skedActivity);
+    }
+}
+
+public virtual class jobAllocation extends skedBaseModels.jobAllocation {
+    public skedBaseModels.geometry startFromLocation {get;set;}
+    public decimal distance {get;set;}
+    public decimal distanceInMiles {get;set;}
+    public integer travelTime {get;set;}
+    public boolean isQualified {get;set;}
+    public boolean isAvailable {get;set;}
+    public string conflictDetails {get;set;}
+    public boolean noHomeAddress {get;set;}
+
+    public string action {get;set;}
+
+    public transient job job {get;set;}
+    public resource resource {get;set;}
+
+    public transient skedBaseModels.event previousEvent {get;set;}
+    public transient skedBaseModels.event nextEvent {get;set;}
+
+    public jobAllocation() {
+        this.isQualified = true;
+        this.isAvailable = true;
+        this.noHomeAddress = false;
+    }
+
+    public jobAllocation(sked__Job_Allocation__c skedAllocation) {
+        super(skedAllocation);
+        this.isQualified = true;
+        this.isAvailable = true;
+        this.noHomeAddress = false;
+    }
+}
+
+global virtual class resource extends skedBaseModels.resource {
+    public resource() {
+
+    }
+
+    public resource(sked__Resource__c skedResource) {
+        super(skedResource);
+    }
+}
+
+public virtual class selectOption {
+    public string id {get;set;}
+    public string label {get;set;}
+    public boolean selected {get;set;}
+
+    public selectOption(string value, string text) {
+        this.id = value;
+        this.label = text;
+        this.selected = false;
+    }
+
+    public selectOption(string value, string text, boolean selected) {
+        this.id = value;
+        this.label = text;
+        this.selected = selected;
+    }
+}
+
+public virtual class cancellationOption extends selectOption{
+    public boolean requireComments {get;set;}
+
+    public cancellationOption(string value, string text) {
+        super(value, text);
+        this.requireComments = false;
+    }
+    public cancellationOption(string value, string text, boolean selected) {
+        super(value, text, selected);
+        this.requireComments = false;
+    }
+}
+
+public virtual class customLocation {
+    public String timeZoneId;
+    public String timeZoneName;
+    public String regionId;
+    public String placeId;
+    public String city;
+    public String state;
+    public String zip;
+    public String territory;
+    public String fullAddress;
+    public decimal latitude {get;set;}
+    public decimal longitude {get;set;}
+
+    public customLocation() {
+
+    }
+
+    public customLocation(Location loc) {
+        this.latitude = loc.getLatitude();
+        this.longitude = loc.getLongitude();
+    }
+}
+
+public class DateModel {
+    public string dateISO {get;set;}//YYYY-MM-DD
+    public string dayOfWeek {get;set;}//SUN -
+    public boolean isHoliday {get;set;}
+    public List<TimeSlotModel> timeSlots {get;set;}
+
+    public DateModel(){
+        this.timeSlots = new List<TimeSlotModel>();
+        this.isHoliday = false;
+    }
+}
+
+public class TimeSlotModel {
+    public Integer numOfAvailableResources {get;set;}
+    public integer startTime {get;set;}
+    public integer endTime {get;set;}
+    public List<jobAllocation> availableResources {get;set;}
+    public Integer totalResources {get;set;}
+    public DateTime startTimeValue {get;set;}
+    public DateTime endTimeValue {get;set;}
+    public string dateISO {get;set;}
+    // Decription: has a tour was scheduled on this time slot
+    public boolean tourBooked {get;set;}
+
+    public TimeSlotModel() {
+        this.numOfAvailableResources = 0;
+        this.totalResources = 0;
+        this.availableResources = new List<jobAllocation>();
+        this.tourBooked = false;
+    }
+}
+
+public class skedCoreException extends System.Exception {
+
+}
+}
+
+
+
+//class skedBaseModels
+
+global class skedBaseModels {
+    
+    public virtual class event implements Comparable {
+        public string eventType {get;set;}
+        public string id {get;set;}
+        public string name {get;set;}
+        public string timezoneSidId {get;set;}
+        public integer startTime {get;set;}
+        public integer finishTime {get;set;}
+        public string startDate {get;set;}
+        public string endDate {get;set;}
+        public string startTimeStr {get;set;}
+        public string endTimeStr {get;set;}
+        public geometry geometry {get;set;}
+        
+        public transient DateTime start {get;set;}
+        public transient DateTime finish {get;set;}
+        public transient Location geoLocation {get;set;}
+        
+        public Integer compareTo(Object compareTo) {
+            event compareToRecord = (event)compareTo;
+            Integer returnValue = 0;
+            
+            if (start > compareToRecord.start) {
+                returnValue = 1;
+            } else if (start < compareToRecord.start) {
+                returnValue = -1;
+            }
+            return returnValue;   
+        }
+    }
+    
+    public virtual class job extends event {
+        public string address {get;set;}
+        public string contactId {get;set;}
+        public integer duration {get;set;}
+        public boolean isRecurring {get;set;}
+        public string jobDate {get;set;}
+        public string jobStatus {get;set;}
+        public string jobType {get;set;}
+        public decimal lat {get;set;}
+        public decimal lng {get;set;}
+        public string regionId {get;set;}
+        public string scheduleId {get;set;}
+        public List<tag> tags {get;set;}
+        
+        public job() {}
+        
+        public job(sked__Job__c skedJob) {
+            this.eventType = 'job';
+            this.id = skedJob.Id;
+            this.name = skedJob.Name;
+            this.address = skedJob.sked__Address__c;
+            this.lat = skedJob.sked__GeoLocation__Latitude__s;
+            this.lng = skedJob.sked__GeoLocation__Longitude__s;
+            this.jobType = skedJob.sked__Type__c;
+            this.jobStatus = skedJob.sked__Job_Status__c;
+            this.duration = integer.valueOf(skedJob.sked__Duration__c);
+            this.contactId = skedJob.sked__Contact__c;
+            this.scheduleId = skedJob.sked__Recurring_Schedule__c;
+            this.isRecurring = !string.isBlank(this.scheduleId);
+            this.regionId = skedJob.sked__Region__c;
+            
+            this.timezoneSidId = skedJob.sked__Timezone__c;
+            this.start = skedJob.sked__Start__c;
+            this.finish = skedJob.sked__Finish__c;
+            this.startTime = integer.valueOf(this.start.format('Hmm', this.timezoneSidId));
+            this.finishTime = integer.valueOf(this.finish.format('Hmm', this.timezoneSidId));
+            this.jobDate = this.start.format(skedDateTimeUtils.DATE_ISO_FORMAT, this.timezoneSidId);
+            this.startTimeStr = this.start.format('h:mma', this.timezoneSidId);
+            this.endTimeStr = this.finish.format('h:mma', this.timezoneSidId);
+            this.geoLocation = skedJob.sked__GeoLocation__c;
+        }
+        
+        public void loadJobTags(List<sked__Job_Tag__c> jobTags) {
+            this.tags = new List<tag>();
+            for (sked__Job_Tag__c jobTag : jobTags) {
+                tag tagItem = new tag();
+                tagItem.id = jobTag.sked__Tag__c;
+                tagItem.name = jobTag.sked__Tag__r.Name;
+                tagItem.relatedId = jobTag.sked__Job__c;
+                this.tags.add(tagItem);
+            }
+        }
+    }
+    
+    public virtual class availability extends event {
+        public availability(sked__Availability__c skedAvailability) {
+            this.eventType = 'availability';
+            this.id = skedAvailability.Id;
+            this.name = skedAvailability.Name;
+            this.timezoneSidId = skedAvailability.sked__Timezone__c;
+            this.start = skedAvailability.sked__Start__c;
+            this.finish = skedAvailability.sked__Finish__c;
+            this.startTime = integer.valueOf(this.start.format('Hmm', this.timezoneSidId));
+            this.finishTime = integer.valueOf(this.finish.format('Hmm', this.timezoneSidId));
+            this.startTimeStr = this.start.format('h:mma', this.timezoneSidId);
+            this.endTimeStr = this.finish.format('h:mma', this.timezoneSidId);
+        }
+    }
+    
+    public virtual class resourceShift extends event {
+        public resourceShift(sked__Resource_Shift__c skedResourceShift) {
+            System.debug('CHECKCHECK');
+            this.eventType = 'shift';
+            this.id = skedResourceShift.Id;
+            this.name = skedResourceShift.Name;
+            this.timezoneSidId='America/Chicago';
+            System.debug('STARTTIME'+skedResourceShift.sked__Shift__r.sked__Start__c);
+            // this.timezoneSidId = skedResourceShift.sked__Resource__r.sked__Primary_Region__r.sked__Timezone__c;
+            this.start = skedResourceShift.sked__Shift__r.sked__Start__c;
+            System.debug('Start'+this.start);
+            this.finish = skedResourceShift.sked__Shift__r.sked__End1__c;
+            System.debug('Finish'+this.finish);
+            this.startTime = integer.valueOf(this.start.format('Hmm', this.timezoneSidId));
+            this.finishTime = integer.valueOf(this.finish.format('Hmm', this.timezoneSidId));
+            this.startTimeStr = this.start.format('h:mma', this.timezoneSidId);
+            this.endTimeStr = this.finish.format('h:mma', this.timezoneSidId);
+        }
+    }
+
+    public virtual class activity extends event {
+        public activity(sked__Activity__c skedActivity) {
+            this.eventType = 'activity';
+            this.id = skedActivity.Id;
+            this.name = skedActivity.Name;
+            this.timezoneSidId = skedActivity.sked__Timezone__c;
+            this.start = skedActivity.sked__Start__c;
+            this.finish = skedActivity.sked__End__c;
+            this.startTime = integer.valueOf(this.start.format('Hmm', this.timezoneSidId));
+            this.finishTime = integer.valueOf(this.finish.format('Hmm', this.timezoneSidId));
+            this.startTimeStr = this.start.format('h:mma', this.timezoneSidId);
+            this.endTimeStr = this.finish.format('h:mma', this.timezoneSidId);
+            this.geoLocation = skedActivity.sked__GeoLocation__c;
+        }
+    }
+    
+    public virtual class jobAllocation extends event {
+        public string jobId {get;set;}
+        public string resourceId {get;set;}
+        public string status {get;set;}
+        
+        public jobAllocation() {}
+        
+        public jobAllocation(sked__Job_Allocation__c skedAllocation) {
+            this.eventType = 'jobAllocation';
+            this.id = skedAllocation.Id;
+            this.name = skedAllocation.Name;
+            this.jobId = skedAllocation.sked__Job__c;
+            this.resourceId = skedAllocation.sked__Resource__c;
+            
+            this.timezoneSidId = skedAllocation.sked__Job__r.sked__Timezone__c;
+            this.start = skedAllocation.sked__Job__r.sked__Start__c;
+            this.finish = skedAllocation.sked__Job__r.sked__Finish__c;
+            this.startTime = integer.valueOf(this.start.format('Hmm', this.timezoneSidId));
+            this.finishTime = integer.valueOf(this.finish.format('Hmm', this.timezoneSidId));
+            this.startTimeStr = this.start.format('h:mma', this.timezoneSidId);
+            this.endTimeStr = this.finish.format('h:mma', this.timezoneSidId);
+            this.geoLocation = skedAllocation.sked__Job__r.sked__GeoLocation__c;
+        }
+    }
+    
+    public virtual class resource {
+        public string id {get;set;}
+        public string name {get;set;}
+        public string category {get;set;}
+        public string photoUrl {get;set;}
+        public string regionId {get;set;}
+        public string regionName {get;set;}
+        public string userId {get;set;}
+        public string timezoneSidId {get;set;}
+        public integer rating {get;set;}
+        public string address {get;set;}
+        public decimal lat {get;set;}
+        public decimal lng {get;set;}
+        public transient List<tag> tags {get;set;}
+        
+        public transient Location geoLocation {get;set;}
+
+        public resource() {}
+        
+        public resource(sked__Resource__c skedResource) {
+            this.id = skedResource.Id;
+            this.name = skedResource.Name;
+            this.category = skedResource.sked__Category__c;
+            this.regionId = skedResource.sked__Primary_Region__c;
+            this.regionName = skedResource.sked__Primary_Region__r.Name;
+            this.timezoneSidId = skedResource.sked__Primary_Region__r.sked__Timezone__c;
+            if (skedResource.sked__User__c != NULL) {
+                this.userId = skedResource.sked__User__c;
+                this.photoUrl = skedResource.sked__User__r.SmallPhotoUrl;
+            }
+            if (skedResource.sked__Rating__c != NULL) {
+                this.rating = integer.valueOf(skedResource.sked__Rating__c);
+            }
+            this.geoLocation = skedResource.sked__GeoLocation__c;
+            this.address = skedResource.sked__Home_Address__c;
+            this.lat = skedResource.sked__GeoLocation__Latitude__s;
+            this.lng = skedResource.sked__GeoLocation__Longitude__s;
+        }
+
+        public void loadResourceTags(List<sked__Resource_Tag__c> resourceTags) {
+            this.tags = new List<tag>();
+            for (sked__Resource_Tag__c resourceTag : resourceTags) {
+                tag tagItem = new tag();
+                tagItem.id = resourceTag.sked__Tag__c;
+                tagItem.name = resourceTag.sked__Tag__r.Name;
+                tagItem.relatedId = resourceTag.sked__Resource__c;
+                tagItem.expiryTime = resourceTag.sked__Expiry_Date__c;
+                this.tags.add(tagItem);
+            }
+        }
+    }
+
+    public virtual class ObjectModel {
+        public string id {get;set;}
+        public string name {get;set;}
+
+        public ObjectModel(sObject obj) {
+            this.id = obj.id;
+            this.name = (String)obj.get('name');
+        }
+
+        public ObjectModel(String objId, String objName) {
+            this.id = objId;
+            this.name = objName;
+        }
+    }
+
+    public virtual class region extends ObjectModel {
+        public String timezoneSidId;
+
+        public Region(sked__Region__c skedRegion) {
+            super(skedRegion);
+            this.timezoneSidId = skedRegion.sked__Timezone__c;
+        }
+    }
+
+    public virtual class tag {
+        public string id {get;set;}
+        public string name {get;set;}
+        public string relatedId {get;set;}
+        public transient DateTime expiryTime {get;set;}
+    }
+    
+    public virtual class geometry {
+        public string address {get;set;}
+        public decimal lat {get;set;}
+        public decimal lng {get;set;}
+
+        public geometry(){}
+        
+        public geometry(string address, decimal lat, decimal lng) {
+            this.address = address;
+            this.lat = lat;
+            this.lng = lng;
+        }
+        
+        public geometry(Location geoLocation) {
+            this.lat = geoLocation.getLatitude();
+            this.lng = geoLocation.getLongitude();
+        }
+    }
+    
+    public virtual class journeyModel {
+        public geometry originGeometry {get;set;}
+        public geometry destinationGeometry {get;set;}
+        public integer travelTime {get;set;}
+        public decimal distance {get;set;}
+        public decimal distanceInMiles {get;set;}
+    }
+    
+}
+
+
+
+
+//class skedResourceAvailabilityBase
+
+global virtual class skedResourceAvailabilityBase {
+
+    public Map<Id, resourceModel> initializeResourceList(Set<Id> resourceIds, DateTime startTime, DateTime endTime, string timezoneSidId, Set<Id> homeIds) {
+        DateTime firstDateStart = skedDateTimeUtils.GetStartOfDate(startTime, timezoneSidId);
+        DateTime lastDateEnd = skedDateTimeUtils.GetEndOfDate(endTime, timezoneSidId);
+        Date firstDate = skedDateTimeUtils.getDate(startTime, timezoneSidId);
+        Date lastDate = skedDateTimeUtils.getDate(endTime, timezoneSidId);
+        Map<Id, sked__Resource__c> mapSkedResource = getResourceWithAvailabilities(resourceIds, firstDateStart, lastDateEnd);
+
+        Map<Id, resourceModel> mapResource = new Map<Id, resourceModel>();
+        for (sked__Resource__c skedResource : mapSkedResource.values()) {
+            resourceModel resource = new resourceModel(skedResource);
+            resource.loadResourceTags(skedResource.sked__ResourceTags__r);
+            resource.mapDateslot = new Map<string, dateslotModel>();
+
+            DateTime tempDt = firstDateStart;
+            while (tempDt < lastDateEnd) {
+                dateslotModel dateslot = new dateslotModel();
+                dateslot.stringValue = tempDt.format(skedDateTimeUtils.DATE_FORMAT, timezoneSidId);
+                dateslot.dateValue = skedDateTimeUtils.getDate(tempDt, timezoneSidId);
+                dateslot.weekday = tempDt.format('EEE', timezoneSidId).toUpperCase();
+                dateslot.start = tempDt;
+                dateslot.finish = skedDateTimeUtils.addDays(dateslot.start, 1, timezoneSidId);
+                dateslot.addEvent(dateslot.start, dateslot.finish, 'non-working', false);
+
+                resource.mapDateslot.put(dateslot.stringValue, dateslot);
+                tempDt = skedDateTimeUtils.addDays(tempDt, 1, timezoneSidId);
+            }
+            mapResource.put(resource.Id, resource);
+        }
+
+        loadWorkingTime(mapResource, resourceIds, timezoneSidId);
+
+
+        for (sked__Resource__c skedResource : mapSkedResource.values()) {
+			Set<Date> attachedDays = new Set<Date>();
+            resourceModel resource = mapResource.get(skedResource.Id);
+            loadResourceEvents(skedResource, resource, timezoneSidId, attachedDays);
+
+        }
+        return mapResource;
+    }
+
+    /**********************************************************Private methods********************************************************************/
+    private void loadWorkingTime(Map<Id, resourceModel> mapResource, Set<Id> resourceIds, string timezoneSidId) {
+        DateTime currentTime = system.now();
+
+        List<sked__Availability_Template_Resource__c> templateResourceList = [SELECT sked__Resource__c, sked__Availability_Template__c
+                                                                              FROM sked__Availability_Template_Resource__c
+                                                                              WHERE sked__Resource__c IN :resourceIds];
+
+        Map<Id, Id> map_ResourceId_TemplateId = new Map<Id, Id>();
+        for (sked__Availability_Template_Resource__c atr : templateResourceList) {
+            map_ResourceId_TemplateId.put(atr.sked__Resource__c, atr.sked__Availability_Template__c);
+        }
+
+        Map<Id, sked__Availability_Template__c> mapTemplate
+            = new Map<Id, sked__Availability_Template__c>([SELECT Id,
+                                                           (SELECT Id, sked__Finish_Time__c, sked__Is_Available__c, sked__Start_Time__c, sked__Weekday__c
+                                                            FROM sked__Availability_Template_Entries__r
+                                                            WHERE sked__Is_Available__c = true)
+                                                           FROM sked__Availability_Template__c
+                                                           WHERE Id IN :map_ResourceId_TemplateId.values()]);
+
+        Map<string, Set<Date>> mapHolidays = skedUtils.getMapHolidays();
+
+        for (ResourceModel resource : mapResource.values()) {
+            Set<Date> allHolidays = new Set<Date>();
+            if (mapHolidays.containsKey(skedConstants.HOLIDAY_GLOBAL)) {
+                Set<Date> globalHolidays = mapHolidays.get(skedConstants.HOLIDAY_GLOBAL);
+                allHolidays.addAll(globalHolidays);
+            }
+            if (mapHolidays.containsKey(resource.RegionId)) {
+                Set<Date> regionHolidays = mapHolidays.get(resource.RegionId);
+                allHolidays.addAll(regionHolidays);
+            }
+
+            Id templateId = map_ResourceId_TemplateId.get(resource.Id);
+            if (templateId == NULL) {
+                continue;
+            }
+            sked__Availability_Template__c avaiTemplate = mapTemplate.get(templateId);
+
+            Map<string, sked__Availability_Template_Entry__c> mapEntry = new Map<string, sked__Availability_Template_Entry__c>();
+            for (sked__Availability_Template_Entry__c entry : avaiTemplate.sked__Availability_Template_Entries__r) {
+                mapEntry.put(entry.sked__Weekday__c, entry);
+            }
+
+            for (dateslotModel dateslot : resource.mapDateslot.values()) {
+                if (!mapEntry.containsKey(dateslot.weekday)) {
+                    continue;
+                }
+
+                sked__Availability_Template_Entry__c entry = mapEntry.get(dateslot.Weekday);
+                integer startWorkingInMinutes = integer.valueOf(integer.valueOf(entry.sked__Start_Time__c) / 100) * 60 + Math.mod(integer.valueOf(entry.sked__Start_Time__c), 100);
+                integer endWorkingInMinutes = integer.valueOf(integer.valueOf(entry.sked__Finish_Time__c) / 100) * 60 + Math.mod(integer.valueOf(entry.sked__Finish_Time__c), 100);
+
+                DateTime startWorkingTime = skedDateTimeUtils.addMinutes(dateslot.start, startWorkingInMinutes, timezoneSidId);
+                DateTime endWorkingTime = skedDateTimeUtils.addMinutes(dateslot.start, endWorkingInMinutes, timezoneSidId);
+
+                if (!allHolidays.contains(dateslot.dateValue)) {
+                    if (currentTime < endWorkingTime) {
+                        dateslot.AddEvent(startWorkingTime, endWorkingTime, null, true);
+                        if (startWorkingTime < currentTime) {
+                            dateslot.AddEvent(startWorkingTime, currentTime, 'uneditable', false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void loadResourceEvents(sked__Resource__c skedResource, resourceModel resource, string timezoneSidId,
+                                    Set<Date> attachedDays) {
+
+        for (sked__Availability__c availableBlock : skedResource.sked__Availabilities1__r) {
+            if (availableBlock.sked__Is_Available__c != TRUE) {
+                continue;
+            }
+            DateTime availableStart = availableBlock.sked__Start__c;
+            DateTime availableEnd = availableBlock.sked__Finish__c;
+            DateTime currentTime = system.now();
+
+            dateslotModel firstDateSlot = resource.mapDateslot.values().get(0);
+            if (availableStart < firstDateSlot.start) {
+                availableStart = firstDateSlot.start;
+            }
+            dateslotModel lastDateSlot = resource.mapDateslot.values().get(resource.mapDateslot.values().size() - 1);
+            if (availableEnd > lastDateSlot.finish) {
+                availableEnd = lastDateSlot.finish;
+            }
+
+            for (dateslotModel dateslot : resource.mapDateslot.values()) {
+                if (dateslot.finish <= availableStart || dateslot.start >= availableEnd) {
+                    continue;
+                }
+                else {
+                    DateTime tempStart = availableStart < dateslot.start ? dateslot.start : availableStart;
+                    DateTime tempEnd = availableEnd > dateslot.finish ? dateslot.finish : availableEnd;
+                    if (currentTime < tempEnd) {
+                        dateslot.AddEvent(tempStart, tempEnd, null, true);
+                        if (tempStart < currentTime) {
+                            dateslot.AddEvent(tempStart, currentTime, 'uneditable', false);
+                        }
+                    }
+                }
+            }
+        }
+
+        Integer END_OF_DAY = 2400;
+
+        for (sked__Availability__c unavailableBlock : skedResource.sked__Availabilities1__r) {
+            if (unavailableBlock.sked__Is_Available__c != FALSE) {
+                continue;
+            }
+            DateTime unavailableStart = unavailableBlock.sked__Start__c;
+            DateTime unavailableEnd = unavailableBlock.sked__Finish__c;
+
+            for (dateslotModel dateslot : resource.mapDateslot.values()) {
+                if (dateslot.finish <= unavailableStart || dateslot.start >= unavailableEnd) {
+                    continue;
+                }
+                else {
+                    DateTime tempStart = unavailableStart < dateslot.start ? dateslot.start : unavailableStart;
+                    DateTime tempEnd = unavailableEnd > dateslot.finish ? dateslot.finish : unavailableEnd;
+                    skedModels.availability availability = new skedModels.availability(unavailableBlock);
+                    dateslot.events.add(availability);
+                }
+            }
+        }
+
+        for (sked__Job_Allocation__c skedAllocation : skedResource.sked__Job_Allocations__r) {
+            string allocationDateString = skedAllocation.sked__Job__r.sked__Start__c.format(skedDateTimeUtils.DATE_FORMAT, timezoneSidId);
+
+            if (resource.mapDateslot.containsKey(allocationDateString)) {
+                dateslotModel dateslot = resource.mapDateslot.get(allocationDateString);
+                skedModels.jobAllocation jobAllocation = new skedModels.jobAllocation(skedAllocation);
+                dateslot.events.add(jobAllocation);
+            }
+        }
+        //Resource Shifts
+        for (sked__Resource_Shift__c skedResourceShift : skedResource.sked__Resource_Shifts__r) {
+            
+            DateTime unavailableStart = skedResourceShift.sked__Shift__r.sked__Start__c;
+            DateTime unavailableEnd = skedResourceShift.sked__Shift__r.sked__End1__c;
+
+            for (dateslotModel dateslot : resource.mapDateslot.values()) {
+
+                if (dateslot.finish <= unavailableStart || dateslot.start >= unavailableEnd) {
+                    continue;
+                }
+                else {
+                    DateTime tempStart = unavailableStart < dateslot.start ? dateslot.start : unavailableStart;
+                    DateTime tempEnd = unavailableEnd > dateslot.finish ? dateslot.finish : unavailableEnd;
+                    skedModels.resourceShift resourceShift = new skedModels.resourceShift(skedResourceShift);
+                    dateslot.events.add(resourceShift);
+                
+            }
+            }
+        }
+
+        for (sked__Activity__c skedActivity : skedResource.sked__Activities__r) {
+            string activityDateString = skedActivity.sked__Start__c.format(skedDateTimeUtils.DATE_FORMAT, timezoneSidId);
+            if (resource.mapDateslot.containsKey(activityDateString)) {
+                dateslotModel dateslot = resource.mapDateslot.get(activityDateString);
+                skedModels.activity activity = new skedModels.activity(skedActivity);
+                dateslot.events.add(activity);
+            }
+        }
+
+        resource.allEvents = new List<skedBaseModels.event>();
+        for (dateslotModel dateslot : resource.mapDateslot.values()) {
+            dateslot.events.sort();
+            resource.allEvents.addAll(dateslot.events);
+        }
+        resource.allEvents.sort();
+    }
+
+    /**********************************************************Protected methods********************************************************************/
+    protected virtual Map<Id, sked__Resource__c> getResourceWithAvailabilities(Set<Id> resourceIds, DateTime startTime, DateTime endTime) {
+        System.debug('CHECKSTART'+startTime);
+        System.debug('CHECKFinish'+endTime);
+
+        return new Map<Id, sked__Resource__c>([SELECT Id, Name, sked__User__r.SmallPhotoUrl, sked__User__c, sked__Category__c, sked__Home_Address__c,
+                                               sked__Primary_Region__r.Name, sked__Primary_Region__c, sked__Primary_Region__r.sked__Timezone__c,
+                                               sked__GeoLocation__c, sked__GeoLocation__Latitude__s, sked__GeoLocation__Longitude__s,
+                                               sked__Rating__c,
+
+                                               (SELECT Id, sked__Tag__c, sked__Tag__r.Name, sked__Resource__c, sked__Expiry_Date__c
+                                                FROM sked__ResourceTags__r),
+
+                                               (SELECT Id, Name, sked__Job__c, sked__Job__r.Name, sked__Job__r.sked__Type__c, sked__Job__r.sked__Start__c,
+                                                sked__Job__r.sked__Finish__c, sked__Job__r.sked__Timezone__c, sked__Job__r.sked__GeoLocation__c, sked__Resource__c
+                                                FROM sked__Job_Allocations__r
+                                                WHERE sked__Status__c NOT IN (:skedConstants.JOB_ALLOCATION_STATUS_DELETED, :skedConstants.JOB_ALLOCATION_STATUS_DECLINED)
+                                                AND sked__Job__r.sked__Job_Status__c != :skedConstants.JOB_STATUS_CANCELLED
+                                                AND sked__Job__r.sked__Start__c < :endTime AND sked__Job__r.sked__Finish__c > :startTime
+                                                ORDER BY sked__Job__r.sked__Start__c ASC),
+
+                                               (SELECT Id, Name, sked__Start__c, sked__Finish__c, sked__Is_Available__c, sked__Status__c, sked__Timezone__c
+                                                FROM sked__Availabilities1__r
+                                                WHERE sked__Start__c < :endTime AND sked__Finish__c > :startTime
+                                                AND sked__Status__c = :skedConstants.AVAILABILITY_STATUS_APPROVED
+                                                ORDER BY sked__Start__c ASC),
+
+                                               (SELECT Id, Name, sked__Start__c, sked__End__c, sked__Address__c, sked__GeoLocation__c, sked__Timezone__c
+                                                FROM sked__Activities__r
+                                                WHERE sked__Start__c < :endTime AND sked__End__c > :startTime
+                                                ORDER BY sked__Start__c ASC),
+
+                                                (SELECT Id,sked__Shift__c,Name,sked__Shift__r.sked__Start__c,sked__Shift__r.sked__End1__c,sked__Resource__c
+                                                FROM sked__Resource_Shifts__r  WHERE sked__Shift__r.sked__Start__c < :endTime 
+                                                AND sked__Shift__r.sked__End1__c > :startTime
+                                                ORDER BY sked__Actual_Start__c ASC)
+
+                                               FROM sked__Resource__c
+                                               WHERE Id IN :resourceIds]);
+    }
+
+    /**********************************************************Nested classes********************************************************************/
+    global class resourceModel extends skedModels.resource {
+        public transient Map<string, dateslotModel> mapDateslot {get;set;}
+        public transient List<skedBaseModels.event> allEvents {get;set;}
+
+        public resourceModel(sked__Resource__c skedResource) {
+            super(skedResource);
+            this.mapDateslot = new Map<string, dateslotModel>();
+        }
+    }
+
+    global class dateslotModel {
+        public string stringValue {get;set;}
+        public Date dateValue {get;set;}
+        public DateTime start {get;set;}
+        public DateTime finish {get;set;}
+        public string weekday {get;set;}
+        public List<skedBaseModels.event> events {get;set;}
+
+        public dateslotModel() {
+            this.events = new List<skedBaseModels.event>();
+        }
+
+        public skedBaseModels.event addEvent(DateTime startTime, DateTime endTime, string eventType, boolean isAvailable) {
+            return addEvent(startTime, endTime, eventType, isAvailable, null);
+        }
+
+        public skedBaseModels.event addEvent(DateTime startTime, DateTime endTime, string eventType, boolean isAvailable, string relatedId) {
+            if (isAvailable == true) {
+                addAvailableBlock(startTime, endTime);
+            }
+            else {
+                skedBaseModels.event newEvent = new skedBaseModels.event();
+                newEvent.start = startTime;
+                newEvent.finish = endTime;
+                newEvent.eventType = eventType;
+                this.events.add(newEvent);
+                return newEvent;
+            }
+            return null;
+        }
+
+        private void addAvailableBlock(DateTime startTime, DateTime endTime) {
+            List<skedBaseModels.event> newEvents = new List<skedBaseModels.event>();
+            Set<DateTime> removedEvents = new Set<DateTime>();
+
+            for (skedBaseModels.event eventItem : this.events) {
+                if (eventItem.start < startTime && startTime < eventItem.finish) {
+                    if (endTime < eventItem.finish) {
+                        skedBaseModels.event newEvent = new skedBaseModels.event();
+                        newEvent.start = endTime;
+                        newEvent.finish = eventItem.finish;
+                        newEvent.eventType = eventItem.eventType;
+                        newEvents.add(newEvent);
+                    }
+                    eventItem.finish = startTime;
+                }
+                else if (startTime <= eventItem.start) {
+                    if (endTime >= eventItem.finish) {
+                        removedEvents.add(eventItem.start);
+                    }
+                    else if (eventItem.start < endTime && endTime < eventItem.finish) {
+                        eventItem.start = endTime;
+                    }
+                }
+            }
+
+            for (integer i = this.events.size() - 1; i >= 0; i--) {
+                skedBaseModels.event eventItem = this.events.get(i);
+                if (removedEvents.contains(eventItem.start)) {
+                    this.events.remove(i);
+                }
+            }
+
+            this.events.addAll(newEvents);
+        }
+    }
+}
