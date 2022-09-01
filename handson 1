@@ -4,14 +4,14 @@ private class skedDateTimeUtils_Practice
     @isTest
     static void practiceDateTimeUtils() 
     {
-        DateTime currentDateTime = DateTime.now();
-        //setting up the timzone
+        DateTime currentDateTime = DateTime.now();        //timzone setup
         String vnTimezone = 'Asia/Saigon';
         String sydneyTimezone = 'Australia/Sydney';
         
-        //Initainlize the datetime
-        DateTime dateInstance = datetime.newInstance(2023, 10, 03,09,00,00); // time is O9:00 AM 
-        DateTime sydneyStartOfDateTime = datetime.newInstance(2023, 10, 03,12,00,00); // time is 12:00 AM
+        //Datetime initialization
+
+        DateTime dateInstance = datetime.newInstance(2023, 10, 03,09,00,00); // time given is 09:00 am 
+        DateTime sydneyStartOfDateTime = datetime.newInstance(2023, 10, 03,12,00,00); // time given is 12:00 AM
         
         DateTime sydney9amStartDate = skedDateTimeUtils.toTimezone(sydneyStartOfDateTime,sydneyTimezone);
         
@@ -20,10 +20,17 @@ private class skedDateTimeUtils_Practice
         DateTime sydneyStartOfDate = skedDateTimeUtils.getStartOfDate(sydney9amStartDate,sydneyTimezone); // Get the start day of time based on SydneyTimezone
         DateTime sydneyNextDate = skedDateTimeUtils.addDays(sydneyStartOfDate, 1, sydneyTimezone);
         
-        //-----------------------System.Assert to check for the condition-----------------------
+        //-----------checking conditions for System.Assert------------
          System.assertEquals('03/10/2023 09:00 AM', vn9am.format(skedDateTimeUtils.DATE_TIME_DMY_FORMAT, vnTimezone));
          System.assertEquals('03/10/2023 09:00 AM', sydney9am.format(skedDateTimeUtils.DATE_TIME_DMY_FORMAT, sydneyTimezone));
          System.assertEquals('03/10/2023 12:00 AM', sydneyStartOfDate.format(skedDateTimeUtils.DATE_TIME_DMY_FORMAT, sydneyTimezone));
          System.assertEquals('04/10/2023 12:00 AM', sydneyNextDate.format(skedDateTimeUtils.DATE_TIME_DMY_FORMAT, sydneyTimezone));
+
+
+        //Debug to print the values
+         System.debug('vn9am='+vn9am);
+         System.debug('sydney9am='+sydney9am);
+         System.debug('sydneyStartOfDate='+sydneyStartOfDate);
+         System.debug('sydneyNextDate='+sydneyNextDate);
     }
 }
