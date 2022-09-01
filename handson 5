@@ -275,17 +275,12 @@ global class skedBaseModels {
     
     public virtual class resourceShift extends event {
         public resourceShift(sked__Resource_Shift__c skedResourceShift) {
-            System.debug('CHECKCHECK');
             this.eventType = 'shift';
             this.id = skedResourceShift.Id;
             this.name = skedResourceShift.Name;
-            this.timezoneSidId='America/Chicago';
-            System.debug('STARTTIME'+skedResourceShift.sked__Shift__r.sked__Start__c);
-            // this.timezoneSidId = skedResourceShift.sked__Resource__r.sked__Primary_Region__r.sked__Timezone__c;
+            this.timezoneSidId='America/Chicago';         
             this.start = skedResourceShift.sked__Shift__r.sked__Start__c;
-            System.debug('Start'+this.start);
             this.finish = skedResourceShift.sked__Shift__r.sked__End1__c;
-            System.debug('Finish'+this.finish);
             this.startTime = integer.valueOf(this.start.format('Hmm', this.timezoneSidId));
             this.finishTime = integer.valueOf(this.finish.format('Hmm', this.timezoneSidId));
             this.startTimeStr = this.start.format('h:mma', this.timezoneSidId);
@@ -631,7 +626,7 @@ global virtual class skedResourceAvailabilityBase {
                 dateslot.events.add(jobAllocation);
             }
         }
-        //Resource Shifts
+
         for (sked__Resource_Shift__c skedResourceShift : skedResource.sked__Resource_Shifts__r) {
             
             DateTime unavailableStart = skedResourceShift.sked__Shift__r.sked__Start__c;
@@ -701,9 +696,9 @@ global virtual class skedResourceAvailabilityBase {
                                                 WHERE sked__Start__c < :endTime AND sked__End__c > :startTime
                                                 ORDER BY sked__Start__c ASC),
 
-                                                (SELECT Id,sked__Shift__c,Name,sked__Shift__r.sked__Start__c,sked__Shift__r.sked__End1__c,sked__Resource__c
-                                                FROM sked__Resource_Shifts__r  WHERE sked__Shift__r.sked__Start__c < :endTime 
-                                                AND sked__Shift__r.sked__End1__c > :startTime
+                                               (SELECT Id, Name, sked__Shift__c,sked__Shift__r.sked__Start__c,sked__Shift__r.sked__End1__c,sked__Resource__c
+                                                FROM sked__Resource_Shifts__r  
+                                                WHERE sked__Shift__r.sked__Start__c < :endTime AND sked__Shift__r.sked__End1__c > :startTime
                                                 ORDER BY sked__Actual_Start__c ASC)
 
                                                FROM sked__Resource__c
