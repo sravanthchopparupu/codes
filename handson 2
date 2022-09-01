@@ -9,7 +9,7 @@ trigger skedJobTrigger on sked__Job__c (after insert,after update)
     }
      catch(DmlException e) 
     {
-        System.debug('The following exception has occurred: ' + e.getMessage());
+        System.debug('This is the following exception which has occurred: ' + e.getMessage());
     }
 }
 
@@ -52,26 +52,26 @@ public static void onCalloutResponse(Set<Id> conIds)
 {        
     try 
     {
-        List<Contact> conDetailList = [SELECT id, Phone,LastName FROM Contact WHERE Id IN : conIds LIMIT 1];
+        List<Contact> conDetailList = [SELECT id, Phone,LastName FROM Contact WHERE Id IN : conIds LIMIT 5];
         if (conDetailList.size() > 0) 
         {
             String phone = conDetailList[0].Phone;
             String countryCode = 'IN';
-            String message = 'handson exercise 2';
+            String message = 'handson exercise 2 is been processed';
             sked.ApiResult.Sms response = sked.SkeduloAPI.sms(phone, countryCode, message);
             if (response.isSuccess()) 
             {
-                System.debug('Message sent--->'+response); 
+                System.debug('Message is been sent--->'+response); 
             } 
             else 
             {
-                System.debug('Error: ' + response.getError());
+                System.debug('Error occured: ' + response.getError());
             } 
         }
     } 
     catch(Exception e) 
     {
-        System.debug('The following exception has occurred: ' + e.getMessage());
+        System.debug('This is the following exception which has occurred: ' + e.getMessage());
     }
     
 }
