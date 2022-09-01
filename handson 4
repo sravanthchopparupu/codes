@@ -55,14 +55,14 @@ global with sharing class skedRestPostController
         
         if (string.isBlank(regionId) == NULL) 
         {
-            errors.message = 'Missing regionId parameter.';
+            errors.message = 'regionId parameter Missing.';
             errors.type = 'Bad Request';
             errors.code = '400';
             success = FALSE;
         }
         else if (string.isBlank(timezone) == NULL) 
         {
-            errors.message = 'Missing TimeZone.';
+            errors.message = 'TimeZone Missing.';
             errors.type = 'Bad Request';
             errors.code = '400';
             success = FALSE;
@@ -76,14 +76,14 @@ global with sharing class skedRestPostController
             } 
             catch (Exception e) 
             {
-                errors.message = 'Error found on API execution ' + e.getMessage();
+                errors.message = 'On API execution this Error found' + e.getMessage();
                 errors.type = 'Server Error';
                 errors.code = '500';            
                 success = FALSE;
             }
         }        
         
-        //Finalize the response object
+        //Response object is being finalized
         if (success) 
         {
             res.statusCode = 200;
