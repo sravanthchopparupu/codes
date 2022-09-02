@@ -32,7 +32,7 @@ global with sharing class skedRestPostController
         Map<String, Object> body = new Map<String, Object>();
         body = (Map<String, Object>)JSON.deserializeUntyped(reqBody);
                 
-        //Initialize response object
+        //Response object is been initialized
         resp resp = new resp();
         err errors = new err();
         skedJobSchedulingModel.Criteria criteria=new skedJobSchedulingModel.Criteria();
