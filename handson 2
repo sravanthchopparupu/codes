@@ -1,6 +1,6 @@
 //trigger
 
-trigger skedJobTrigger on sked__Job__c (after insert,after update) 
+trigger skedJobTrigger on sked__Job__c (after insert,after update, before insert, before update, before delete, after delete) 
 {
     try 
     {
