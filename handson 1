@@ -4,30 +4,30 @@ private class skedDateTimeUtils_Practice
     @isTest
     static void practiceDateTimeUtils() 
     {
+        DateTime currentDateTime = DateTime.now();        //timzone setup
         String vnTimezone = 'Asia/Saigon';
         String sydneyTimezone = 'Australia/Sydney';
-        DateTime currentDateTime = DateTime.now();        //timzone setup
         
         //Datetime initialization
 
         DateTime dateInstance = datetime.newInstance(2023, 10, 03,09,00,00); // time given is 09:00 am 
         DateTime sydneyStartOfDateTime = datetime.newInstance(2023, 10, 03,12,00,00); // time given is 12:00 AM
         
-        DateTime sydney9amStartDate = skedDateTimeUtils.toTimezone(sydneyTimezone, sydneyStartOfDateTime);
+        DateTime sydney9amStartDate = skedDateTimeUtils.toTimezone(sydneyStartOfDateTime,sydneyTimezone);
         
-        DateTime vn9am = skedDateTimeUtils.toTimezone(vnTimezone, dateInstance);
-        DateTime sydney9am = skedDateTimeUtils.toTimezone(sydneyTimezone, dateInstance);
-        DateTime sydneyStartOfDate = skedDateTimeUtils.getStartOfDate(sydneyTimezone, sydney9amStartDate); // Get the start day of time based on SydneyTimezone
-        DateTime sydneyNextDate = skedDateTimeUtils.addDays( sydneyTimezone, 1, sydneyStartOfDate);
+        DateTime vn9am = skedDateTimeUtils.toTimezone(dateInstance,vnTimezone);
+        DateTime sydney9am = skedDateTimeUtils.toTimezone(dateInstance,sydneyTimezone);
+        DateTime sydneyStartOfDate = skedDateTimeUtils.getStartOfDate(sydney9amStartDate,sydneyTimezone); // Get the start day of time based on SydneyTimezone
+        DateTime sydneyNextDate = skedDateTimeUtils.addDays(sydneyStartOfDate, 1, sydneyTimezone);
         
-        //-------checking conditions for System.Assert-------
-         System.assertEquals('03/10/2023 09:00 AM', vn9am.format(vnTimezone, skedDateTimeUtils.DATE_TIME_DMY_FORMAT));
-         System.assertEquals('03/10/2023 09:00 AM', sydney9am.format(sydneyTimezone, skedDateTimeUtils.DATE_TIME_DMY_FORMAT));
-         System.assertEquals('03/10/2023 12:00 AM', sydneyStartOfDate.format(sydneyTimezone, skedDateTimeUtils.DATE_TIME_DMY_FORMAT));
-         System.assertEquals('04/10/2023 12:00 AM', sydneyNextDate.format(sydneyTimezone, skedDateTimeUtils.DATE_TIME_DMY_FORMAT));
+        //-----------checking conditions for System.Assert------------
+         System.assertEquals('03/10/2023 09:00 AM', vn9am.format(skedDateTimeUtils.DATE_TIME_DMY_FORMAT, vnTimezone));
+         System.assertEquals('03/10/2023 09:00 AM', sydney9am.format(skedDateTimeUtils.DATE_TIME_DMY_FORMAT, sydneyTimezone));
+         System.assertEquals('03/10/2023 12:00 AM', sydneyStartOfDate.format(skedDateTimeUtils.DATE_TIME_DMY_FORMAT, sydneyTimezone));
+         System.assertEquals('04/10/2023 12:00 AM', sydneyNextDate.format(skedDateTimeUtils.DATE_TIME_DMY_FORMAT, sydneyTimezone));
 
 
-        //-------Debug to print the values----------
+        //Debug to print the values
          System.debug('vn9am='+vn9am);
          System.debug('sydney9am='+sydney9am);
          System.debug('sydneyStartOfDate='+sydneyStartOfDate);
