@@ -94,7 +94,7 @@ private class skedObjectSelector_Practice
             .sort('sked__Job__r.sked__Start__c DESC') //Sorting by Job's Start in descending order is done second */
             .parent //Getting back to main query
             .parentQuery('sked__Primary_Region__c') //Related Region fields defined in field mapping are been queried
-            .size(20) //Only 20 records are retrieved
+            .size(20) //Maximum 20 records are retrieved
             .getQuery() //Dynamic SOQL query is been generated
         );
         
