@@ -2,9 +2,7 @@
 private class skedDateTimeUtils_Practice 
 {
     @isTest
-    static void practiceDateTimeUtils() 
-    {
-        DateTime currentDateTime = DateTime.now();        //timzone setup
+    static void practiceDateTimeUtils() {
         String vnTimezone = 'Asia/Saigon';
         String sydneyTimezone = 'Australia/Sydney';
         
