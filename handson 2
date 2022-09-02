@@ -57,11 +57,11 @@ public static void onCalloutResponse(Set<Id> conIds)
         {
             String phone = conDetailList[0].Phone;
             String countryCode = 'IN';
-            String message = 'handson exercise 2 is been processed';
-            sked.ApiResult.Sms response = sked.SkeduloAPI.sms(phone, countryCode, message);
+            String message = 'handson exercise 2 is being processed';
+            sked.ApiResult.Sms response = sked.SkeduloAPI.sms(message, countryCode, phone);
             if (response.isSuccess()) 
             {
-                System.debug('Message is been sent--->'+response); 
+                System.debug('Message has been sent--->'+response); 
             } 
             else 
             {
