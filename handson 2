@@ -52,7 +52,7 @@ public static void onCalloutResponse(Set<Id> conIds)
 {        
     try 
     {
-        List<Contact> conDetailList = [SELECT id, Phone,LastName FROM Contact WHERE Id IN : conIds LIMIT 5];
+        List<Contact> conDetailList = [SELECT id, Phone, LastName FROM Contact WHERE Id IN : conIds LIMIT 5];
         if (conDetailList.size() > 0) 
         {
             String phone = conDetailList[0].Phone;
