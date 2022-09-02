@@ -98,7 +98,7 @@ private class skedObjectSelector_Practice
             .getQuery() //Dynamic SOQL query is been generated
         );
         
-        System.debug('resources--->'+resources.size());
+        System.debug('<----number of resources present here---->'+resources.size());
         
         Test.stopTest();
         
