@@ -35,29 +35,34 @@ global with sharing class skedRestPostController
         //Response object is been initialized
         resp resp = new resp();
         err errors = new err();
-        skedJobSchedulingModel.Criteria criteria=new skedJobSchedulingModel.Criteria();
-        criteria.timezone = (String)body.get('timezone');
-        criteria.startDate = (String)body.get('startDate');
-        criteria.duration = (Integer)body.get('duration');
-        criteria.intStartTime = (Integer)body.get('intStartTime');
-        criteria.intEndTime = (Integer)body.get('intEndTime');
-        criteria.endDate = (String)body.get('endDate');
-        criteria.latitude = (Decimal)body.get('latitude');
-        criteria.longitude = (Decimal)body.get('longitude');
-        criteria.tagIds = (List<Id>)body.get('tagIds');
-        criteria.includeResourceInfo = (Boolean)body.get('includeResourceInfo');
-        criteria.offsetTime = (Integer)body.get('offsetTime');
+        skedJobSchedulingModel.Criteria cr=new skedJobSchedulingModel.Criteria();
+        cr.regionId = (String)body.get('regionId');
+        cr.homeId = (String)body.get('homeId');
+        cr.suiteId = (String)body.get('suiteId');
+        cr.roomId = (String)body.get('roomId');
+        cr.timezone = (String)body.get('timezone');
+        cr.startDate = (String)body.get('startDate');
+        cr.duration = (Integer)body.get('duration');
+        cr.intStartTime = (Integer)body.get('intStartTime');
+        cr.intEndTime = (Integer)body.get('intEndTime');
+        cr.endDate = (String)body.get('endDate');
+        cr.latitude = (Decimal)body.get('latitude');
+        cr.longitude = (Decimal)body.get('longitude');
+        cr.tagIds = (List<Id>)body.get('tagIds');
+        cr.eventIds = (List<Id>)body.get('eventIds');
+        cr.includeResourceInfo = (Boolean)body.get('includeResourceInfo');
+        cr.offsetTime = (Integer)body.get('offsetTime');
         
-        if (string.isBlank(regionId) == NULL) 
+        if (string.isBlank(startDate) == NULL) 
         {
-            errors.message = 'regionId parameter Missing.';
+            errors.message = 'startDate Missing.';
             errors.type = 'Bad Request';
             errors.code = '400';
             success = FALSE;
         }
-        else if (string.isBlank(timezone) == NULL) 
+        else if (string.isBlank(endDate) == NULL) 
         {
-            errors.message = 'TimeZone Missing.';
+            errors.message = 'endDate Missing.';
             errors.type = 'Bad Request';
             errors.code = '400';
             success = FALSE;
@@ -67,7 +72,7 @@ global with sharing class skedRestPostController
             try
             {
                 skedJobSchedulingCtrlHandler sked = new skedJobSchedulingCtrlHandler();
-                sked.getAvailableResources(criteria);
+                sked.getAvailableResources(cr);
             } 
             catch (Exception e) 
             {
